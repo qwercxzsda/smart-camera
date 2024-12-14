@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Smart Camera</title>
+</head>
+<body>
+<div id="app">
+    <div id="input-wrapper">
+        <div id="camera-wrapper">
+            <video id="camera-feed" autoplay playsinline></video>
+        </div>
+        <div id="detected-wrapper">
+            <img id="detected-image" src="/hailo.png" alt="Placeholder Image"/>
+            <p id="detected-text">Hello from hailo</p>
+        </div>
+    </div>
+
+    <div id="output-wrapper">
+        <ul id="output-list">
+            <li class="output-item">
+                <img src="/ollama.png" alt="Output Image" class="output-image"/>
+                <p class="output-text">Hello from ollama</p>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
