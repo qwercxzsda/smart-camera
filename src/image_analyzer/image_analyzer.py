@@ -45,16 +45,16 @@ class ImageAnalyzer:
         self.history: defaultdict[str, list[ImageObjectDetected]] = defaultdict(list)
 
     async def analyze_image(self, user: str, image_raw: Image.Image) -> ImageDescribed:
+        logger.info(f"Analyzing image for user {user}, user history length: {len(self.history[user])}")
         image: ImageObjectDetected = self.object_detector.detect(image_raw)
 
         prev_image: Optional[ImageObjectDetected] = get_last_element(self.history[user])
-        self.history[user].append(image)
 
         if not is_different(image, prev_image):
-            logger.info(f"Image {image} is the same as the previous image {prev_image} for user {user}")
+            logger.info(f"Image is the same as the previous image for user {user}")
             return ImageDescribed(image=image, description="", status="indifferent", time=-1.)
 
-        logger.info(f"Analyzing a new image {image} for user {user}")
+        self.history[user].append(image)
         return await self.image_describer.describe(image)
 
     async def analyze(self, user: str, image_raw: Image.Image) -> ImageDescribed:
@@ -70,5 +70,5 @@ class ImageAnalyzer:
         if user not in self.history:
             logger.info(f"User {user} not found in history")
         else:
+            logger.info(f"Deleting user history of length {len(self.history[user])} for user {user}")
             self.history.pop(user)
-            logger.info(f"Refreshed image analyzer for user {user}")

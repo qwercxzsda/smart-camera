@@ -1,9 +1,8 @@
 import './style.css';
 import {analyze, AnalyzeResult} from './analyze';
 import {VideoManager} from './video-manager';
+import {API_REFRESH, MAX_ELEMENTS, UPDATE_INTERVAL} from "./config.ts";
 
-const updateInterval: number = 200;
-const maxElements: number = 50;
 
 main();
 
@@ -20,6 +19,10 @@ function main() {
     const outputList: HTMLUListElement | null = document.querySelector<HTMLUListElement>('#output-list');
     console.assert(outputList !== null, 'outputList is null');
     setupAnalyze(videoManager, detectedImage!, detectedText!, outputList!);
+
+    const refreshButton: HTMLButtonElement | null = document.querySelector<HTMLButtonElement>('#refresh-button');
+    console.assert(refreshButton !== null, 'refreshButton is null');
+    setupRefreshButton(refreshButton!, outputList!);
 }
 
 function setupCameraFeed(video: HTMLVideoElement): void {
@@ -36,6 +39,24 @@ function setupCameraFeed(video: HTMLVideoElement): void {
     }
 }
 
+function setupRefreshButton(button: HTMLButtonElement, outputList: HTMLUListElement): void {
+    button.addEventListener('click', async function () {
+        await fetch(API_REFRESH, {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        // Refresh outputList by clearing its children
+        Array.from(outputList.children).forEach(function (child: Element): void {
+            const imgElement: HTMLImageElement | null = child.querySelector('img');
+            if (imgElement && imgElement.src !== '/ollama.png') {
+                URL.revokeObjectURL(imgElement.src); // Revoke URL before removing
+            }
+        });
+        outputList.innerHTML = ''; // Clear all children from the output list
+    });
+}
+
 function setupAnalyze(
     videoManager: VideoManager,
     detectedImage: HTMLImageElement, detectedText: HTMLParagraphElement,
@@ -43,7 +64,7 @@ function setupAnalyze(
 ): void {
     setInterval(async function () {
         await analyzeAndUpdate(videoManager, detectedImage, detectedText, outputList);
-    }, updateInterval);
+    }, UPDATE_INTERVAL);
 }
 
 async function analyzeAndUpdate(
@@ -65,7 +86,7 @@ async function analyzeAndUpdate(
         return;
     }
     console.log(`status: ${analyzeResult.status}, updating output list`);
-    if (outputList.children.length > maxElements) {
+    if (outputList.children.length > MAX_ELEMENTS) {
         const lastChild: Element = outputList.children[outputList.children.length - 1];
         const imgElement: HTMLImageElement | null = lastChild.querySelector('img');
         if (imgElement && imgElement.src !== '/ollama.png') {

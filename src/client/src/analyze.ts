@@ -1,3 +1,5 @@
+import {API_ANALYZE} from "./config.ts";
+
 export interface AnalyzeResult {
     image: File;
     status: string;
@@ -8,14 +10,12 @@ export interface AnalyzeResult {
 
 let imageCounter: number = 0;
 
-const analyzeAddress: string = '/api/analyze';
-
 export async function analyze(image: File): Promise<AnalyzeResult> {
-    console.log(`POST request to: ${analyzeAddress}`);
+    console.log(`POST request to: ${API_ANALYZE}`);
     const formData = new FormData();
     formData.append('file', image);
 
-    const response: Response = await fetch(analyzeAddress, {
+    const response: Response = await fetch(API_ANALYZE, {
         method: 'POST',
         body: formData,
         credentials: 'include'
