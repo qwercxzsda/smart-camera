@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from logging import getLogger
 from pathlib import Path
 from queue import Queue
@@ -40,6 +41,17 @@ class HailoObjectDetector(ObjectDetector):
         self.labels_path: Path = (Path(__file__).parent / "coco.txt").resolve()
         self.labels: list[str] = get_labels(self.labels_path)
 
+        # We only allow one item in the queue at a time
+        # This is to ensure that the outputs are not mixed up
+        self.lock: asyncio.Lock = asyncio.Lock()
+        self.input_queue: Queue[Optional[list[Image.Image]]] = Queue()
+        self.output_queue: Queue[tuple[Any, list[Any]]] = Queue()
+        hailo_async_inference: HailoAsyncInference = HailoAsyncInference(
+            str(self.model_path),
+            self.input_queue, self.output_queue, batch_size=1
+        )
+        threading.Thread(target=hailo_async_inference.run, daemon=True).start()
+
     def extract_detections(self, outputs: list[np.ndarray]) -> list[Detection]:
         detections: list[Detection] = []
         for i, output in enumerate(outputs):
@@ -61,20 +73,11 @@ class HailoObjectDetector(ObjectDetector):
         return detections
 
     async def run(self, image_preprocessed: Image.Image) -> list[Detection]:
-        input_queue: Queue[Optional[list[Image.Image]]] = Queue()
-        output_queue: Queue[tuple[Any, list[Any]]] = Queue()
-        input_queue.put([image_preprocessed])
-        # Send None to the input queue to stop the inference loop
-        input_queue.put(None)
+        async with self.lock:
+            self.input_queue.put([image_preprocessed])
+            # We put a single image, so we expect a single output
+            _, outputs = await asyncio.to_thread(self.output_queue.get)
 
-        hailo_async_inference: HailoAsyncInference = HailoAsyncInference(
-            str(self.model_path),
-            input_queue, output_queue, batch_size=1
-        )
-        hailo_async_inference.run()
-
-        # We put a single image, so we expect a single output
-        _, outputs = await asyncio.to_thread(output_queue.get)
         # output may be list[list[np.ndarray]] (hailort versions < 4.19.0) or list[np.ndarray]
         # In both cases, the inner list has len(classes) elements
         if len(outputs) == 1:
