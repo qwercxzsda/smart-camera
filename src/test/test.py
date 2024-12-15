@@ -7,6 +7,7 @@ from PIL import Image
 
 from image_analyzer.image_describer.image_describer import DummyImageDescriber, ImageDescribed
 from image_analyzer.image_describer.ollama_image_describer import OllamaImageDescriber
+from image_analyzer.object_detector.hailo_object_detector import HailoObjectDetector
 from image_analyzer.object_detector.object_detector import Detection, DummyObjectDetector, ImageObjectDetected
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ class TestObjectDetector(unittest.TestCase):
         preprocessed_image.save(self.resource_dir / "tmp" / "test_preprocess.png")
 
     def test_detect(self):
-        res: ImageObjectDetected = self.detector.detect(self.img)
+        res: ImageObjectDetected = asyncio.run(self.detector.detect(self.img))
         self.assertIsInstance(res, ImageObjectDetected)
         self.assertEqual(res.image_detected.size, (300, 300))
         self.assertEqual(len(res.detections), 1)
@@ -37,13 +38,26 @@ class TestObjectDetector(unittest.TestCase):
         res.image_detected.save(self.resource_dir / "tmp" / "test_detect.png")
 
 
+class TestHailoObjectDetector(unittest.TestCase):
+    def setUp(self):
+        self.detector = HailoObjectDetector()
+        self.resource_dir = Path(__file__).parent / "resources"
+        self.img: Image.Image = Image.open(self.resource_dir / "img1.png")
+
+    def test_detect(self):
+        res: ImageObjectDetected = asyncio.run(self.detector.detect(self.img))
+        self.assertIsInstance(res, ImageObjectDetected)
+        print(res.detections)
+        res.image_detected.save(self.resource_dir / "tmp" / "test_hailo_detect.png")
+
+
 class TestImageDescriber(unittest.TestCase):
     def setUp(self):
         self.describer = DummyImageDescriber()
         self.detector = DummyObjectDetector()
         self.resource_dir = Path(__file__).parent / "resources"
         self.img: Image.Image = Image.open(self.resource_dir / "img1.png")
-        self.img_detected: ImageObjectDetected = self.detector.detect(self.img)
+        self.img_detected: ImageObjectDetected = asyncio.run(self.detector.detect(self.img))
 
     def test_describe(self):
         description: ImageDescribed = asyncio.run(self.describer.describe(self.img_detected))
@@ -58,7 +72,7 @@ class TestOllamaImageDescriber(unittest.TestCase):
         self.detector = DummyObjectDetector()
         self.resource_dir = Path(__file__).parent / "resources"
         self.img: Image.Image = Image.open(self.resource_dir / "img2.png")
-        self.img_detected: ImageObjectDetected = self.detector.detect(self.img)
+        self.img_detected: ImageObjectDetected = asyncio.run(self.detector.detect(self.img))
 
     def test_describe(self):
         description: ImageDescribed = asyncio.run(self.describer.describe(self.img_detected))

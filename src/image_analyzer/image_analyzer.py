@@ -46,7 +46,7 @@ class ImageAnalyzer:
 
     async def analyze_image(self, user: str, image_raw: Image.Image) -> ImageDescribed:
         logger.info(f"Analyzing image for user {user}, user history length: {len(self.history[user])}")
-        image: ImageObjectDetected = self.object_detector.detect(image_raw)
+        image: ImageObjectDetected = await self.object_detector.detect(image_raw)
 
         prev_image: Optional[ImageObjectDetected] = get_last_element(self.history[user])
 

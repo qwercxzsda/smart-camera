@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import getLogger
@@ -80,13 +81,13 @@ class ObjectDetector(ABC):
         return padded_image
 
     @abstractmethod
-    def detect_objects(self, image_preprocessed: Image.Image) -> list[Detection]:
+    async def detect_objects(self, image_preprocessed: Image.Image) -> list[Detection]:
         pass
 
     @final
-    def detect(self, image: Image.Image) -> ImageObjectDetected:
+    async def detect(self, image: Image.Image) -> ImageObjectDetected:
         image_detected: Image.Image = self.preprocess(image)
-        detections: list[Detection] = self.detect_objects(image_detected)
+        detections: list[Detection] = await self.detect_objects(image_detected)
         draw_detections(image_detected, detections)
         logger.info(f"Detected {len(detections)} objects in the image, detections: {detections}")
 
@@ -100,7 +101,8 @@ class DummyObjectDetector(ObjectDetector):
         super().__init__(preprocess_width=300, preprocess_height=300)
 
     @override
-    def detect_objects(self, image: Image.Image) -> list[Detection]:
+    async def detect_objects(self, image_preprocessed: Image.Image) -> list[Detection]:
+        await asyncio.sleep(0.1)
         return [
             Detection(
                 box=(0.1, 0.1, 0.9, 0.9),
