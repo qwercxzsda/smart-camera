@@ -10,7 +10,7 @@ from aiohttp import ClientResponse
 from image_analyzer.image_describer.image_describer import ImageDescriber
 from image_analyzer.object_detector.object_detector import ImageObjectDetected
 
-__all__ = ["OllamaImageDescriber"]
+__all__ = ["base64encode", "OllamaImageDescriber"]
 
 logger = logging.getLogger(__name__)
 

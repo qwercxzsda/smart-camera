@@ -2,7 +2,7 @@ import './style.css';
 import {analyze, AnalyzeResult} from './analyze';
 import {VideoManager} from './video-manager';
 
-const updateInterval: number = 200;
+const updateInterval: number = 5000;
 const maxElements: number = 50;
 
 main();
@@ -75,7 +75,7 @@ async function analyzeAndUpdate(
 
     const p: HTMLParagraphElement = document.createElement('p');
     p.classList.add('output-text');
-    p.textContent = `${analyzeResult.detections}\n${analyzeResult.description}`;
+    p.textContent = `took ${analyzeResult.time.toFixed(2)} seconds\n${analyzeResult.description}`;
 
     li.appendChild(img);
     li.appendChild(p);

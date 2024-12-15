@@ -3,24 +3,47 @@ export interface AnalyzeResult {
     status: string;
     detections: string;
     description: string;
+    time: number;
 }
 
-let counter: number = 0;
+let imageCounter: number = 0;
 
-// TODO: fetch from server
+const analyzeAddress: string = '/api/analyze';
+
 export async function analyze(image: File): Promise<AnalyzeResult> {
-    if (counter++ % 50 !== 0) {
-        return {
-            image,
-            status: 'busy',
-            detections: 'nothing!',
-            description: 'I dont know...'
-        };
-    }
+    console.log(`POST request to: ${analyzeAddress}`);
+    const formData = new FormData();
+    formData.append('file', image);
+
+    const response: Response = await fetch(analyzeAddress, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    });
+    console.assert(response.ok, `Failed to analyze image, response status: ${response.status}`);
+
+    const result = await response.json();
+    console.assert(
+        ['success', 'indifferent', 'busy'].includes(result.status),
+        `Invalid status: ${result.status}`
+    );
+
+    const decodedImageBlob = await fetch(`data:image/png;base64,${result.image}`)
+        .then(res => res.blob());
+    const decodedImageFile = new File(
+        [decodedImageBlob], `decodedImage${imageCounter++}.png`, {type: 'image/png'}
+    );
+
+    console.log(
+        `status: ${result.status}, detections: ${result.detections}, 
+        description: ${result.description}, time: ${result.time}`
+    );
+
     return {
-        image,
-        status: 'success',
-        detections: 'something?',
-        description: "It's a nice image"
+        image: decodedImageFile,
+        status: result.status,
+        detections: result.detections,
+        description: result.description,
+        time: result.time
     };
 }
