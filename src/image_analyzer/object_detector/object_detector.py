@@ -2,7 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import getLogger
-from typing import final, override
+from typing import final
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -100,7 +100,6 @@ class DummyObjectDetector(ObjectDetector):
     def __init__(self):
         super().__init__(preprocess_width=300, preprocess_height=300)
 
-    @override
     async def detect_objects(self, image_preprocessed: Image.Image) -> list[Detection]:
         await asyncio.sleep(0.1)
         return [

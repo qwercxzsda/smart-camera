@@ -1,7 +1,7 @@
 import base64
 import io
 import logging
-from typing import Any, override
+from typing import Any
 
 import aiohttp
 from PIL import Image
@@ -58,7 +58,6 @@ class OllamaImageDescriber(ImageDescriber):
     def __init__(self):
         super().__init__(ollama_max_w_h)
 
-    @override
     async def describe_image(self, image: ImageObjectDetected) -> str:
         image_resized: Image.Image = self.preprocess(image.image)
         return await query(image_resized)

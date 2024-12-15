@@ -2,13 +2,12 @@ name: smart_camera
 channels:
   - defaults
 dependencies:
-  - python=3.12
+  - python=3.11
   - pip
   - pip:
-    - numpy
-    - pillow
-    - fastapi[standard]
-    - python-multipart
-    - aiohttp[speedups]
-    - uvicorn[standard]
-    
+      - numpy
+      - pillow
+      - fastapi[standard]
+      - python-multipart
+      - aiohttp[speedups]
+      - uvicorn[standard]

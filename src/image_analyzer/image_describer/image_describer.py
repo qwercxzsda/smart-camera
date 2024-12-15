@@ -3,7 +3,7 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import getLogger
-from typing import final, override
+from typing import final
 
 from PIL import Image
 
@@ -69,7 +69,6 @@ class DummyImageDescriber(ImageDescriber):
     def __init__(self):
         super().__init__(max_w_h=128)
 
-    @override
     async def describe_image(self, image: ImageObjectDetected) -> str:
         await asyncio.sleep(3)
         return "A dummy description"

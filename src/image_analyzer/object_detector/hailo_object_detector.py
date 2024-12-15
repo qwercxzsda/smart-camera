@@ -2,7 +2,7 @@ import asyncio
 from logging import getLogger
 from pathlib import Path
 from queue import Queue
-from typing import Any, Optional, override
+from typing import Any, Optional
 
 import numpy as np
 from PIL import Image
@@ -81,6 +81,5 @@ class HailoObjectDetector(ObjectDetector):
             outputs = outputs[0]
         return self.extract_detections(outputs)
 
-    @override
     async def detect_objects(self, image_preprocessed: Image.Image) -> list[Detection]:
         return await self.run(image_preprocessed)
