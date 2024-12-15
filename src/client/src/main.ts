@@ -2,7 +2,7 @@ import './style.css';
 import {analyze, AnalyzeResult} from './analyze';
 import {VideoManager} from './video-manager';
 
-const updateInterval: number = 5000;
+const updateInterval: number = 200;
 const maxElements: number = 50;
 
 main();
@@ -53,6 +53,10 @@ async function analyzeAndUpdate(
 ): Promise<void> {
     const image: File = await videoManager.getVideoFrameUnsafe();
     const analyzeResult: AnalyzeResult = await analyze(image);
+
+    if (detectedImage.src !== '/hailo.png') {
+        URL.revokeObjectURL(detectedImage.src);
+    }
     detectedImage.src = URL.createObjectURL(analyzeResult.image);
     detectedText.textContent = `status: ${analyzeResult.status}\n\n${analyzeResult.detections}`;
 
@@ -62,7 +66,12 @@ async function analyzeAndUpdate(
     }
     console.log(`status: ${analyzeResult.status}, updating output list`);
     if (outputList.children.length > maxElements) {
-        outputList.removeChild(outputList.children[outputList.children.length - 1]);
+        const lastChild: Element = outputList.children[outputList.children.length - 1];
+        const imgElement: HTMLImageElement | null = lastChild.querySelector('img');
+        if (imgElement && imgElement.src !== '/ollama.png') {
+            URL.revokeObjectURL(imgElement.src);
+        }
+        outputList.removeChild(lastChild);
     }
 
     const li: HTMLLIElement = document.createElement('li');

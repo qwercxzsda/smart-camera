@@ -28,7 +28,7 @@ export async function analyze(image: File): Promise<AnalyzeResult> {
         `Invalid status: ${result.status}`
     );
 
-    const decodedImageBlob = await fetch(`data:image/png;base64,${result.image}`)
+    const decodedImageBlob: Blob = await fetch(`data:image/png;base64,${result.image}`)
         .then(res => res.blob());
     const decodedImageFile = new File(
         [decodedImageBlob], `decodedImage${imageCounter++}.png`, {type: 'image/png'}
