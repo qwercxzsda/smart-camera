@@ -6,8 +6,6 @@ from pathlib import Path
 from PIL import Image
 
 from image_analyzer.image_describer.image_describer import DummyImageDescriber, ImageDescribed
-from image_analyzer.image_describer.ollama_image_describer import OllamaImageDescriber
-from image_analyzer.object_detector.hailo_object_detector import HailoObjectDetector
 from image_analyzer.object_detector.object_detector import Detection, DummyObjectDetector, ImageObjectDetected
 
 logger = logging.getLogger(__name__)
@@ -40,15 +38,22 @@ class TestObjectDetector(unittest.TestCase):
 
 class TestHailoObjectDetector(unittest.TestCase):
     def setUp(self):
+        from image_analyzer.object_detector.hailo_object_detector import HailoObjectDetector
         self.detector = HailoObjectDetector()
         self.resource_dir = Path(__file__).parent / "resources"
         self.img: Image.Image = Image.open(self.resource_dir / "img1.png")
 
-    def test_detect(self):
+    def test_detect1(self):
         res: ImageObjectDetected = asyncio.run(self.detector.detect(self.img))
         self.assertIsInstance(res, ImageObjectDetected)
         print(res.detections)
-        res.image_detected.save(self.resource_dir / "tmp" / "test_hailo_detect.png")
+        res.image_detected.save(self.resource_dir / "tmp" / "test_hailo_detect1.png")
+
+    def test_detect2(self):
+        res: ImageObjectDetected = asyncio.run(self.detector.detect(self.img))
+        self.assertIsInstance(res, ImageObjectDetected)
+        print(res.detections)
+        res.image_detected.save(self.resource_dir / "tmp" / "test_hailo_detect2.png")
 
 
 class TestImageDescriber(unittest.TestCase):
@@ -68,6 +73,7 @@ class TestImageDescriber(unittest.TestCase):
 
 class TestOllamaImageDescriber(unittest.TestCase):
     def setUp(self):
+        from image_analyzer.image_describer.ollama_image_describer import OllamaImageDescriber
         self.describer = OllamaImageDescriber()
         self.detector = DummyObjectDetector()
         self.resource_dir = Path(__file__).parent / "resources"
