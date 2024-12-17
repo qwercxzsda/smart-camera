@@ -1,5 +1,7 @@
 .DS_Store
 .idea/
+src/test/resources/tmp/
+.vscode/
 
 
 # https://github.com/github/gitignore/blob/main/Python.gitignore
