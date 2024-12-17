@@ -1,4 +1,4 @@
-name: smart_camera
+name: smart-camera
 channels:
   - defaults
 dependencies:
