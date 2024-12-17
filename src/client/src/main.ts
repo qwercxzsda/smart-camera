@@ -87,7 +87,14 @@ async function analyzeAndUpdate(
         console.log(`status: ${analyzeResult.status}, skipping output list update`);
         return;
     }
-    console.log(`status: ${analyzeResult.status}, updating output list`);
+
+    // speak the description using tts and update the output list
+    console.log(
+        `status: ${analyzeResult.status}, 
+        announcing description: ${analyzeResult.description} and updating output list`
+    );
+    speak(analyzeResult.description);
+
     if (outputList.children.length > MAX_ELEMENTS) {
         const lastChild: Element = outputList.children[outputList.children.length - 1];
         const imgElement: HTMLImageElement | null = lastChild.querySelector('img');
@@ -112,4 +119,13 @@ async function analyzeAndUpdate(
     li.appendChild(img);
     li.appendChild(p);
     outputList.insertBefore(li, outputList.firstChild);
+}
+
+function speak(text: string): void {
+    const utterance: SpeechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 1;
+    // cancel any other utterances queued before
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
 }
