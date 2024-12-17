@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from logging import getLogger
 from typing import Any, Optional
@@ -46,16 +47,24 @@ class ImageAnalyzer:
 
     async def analyze_image(self, user: str, image_raw: Image.Image) -> ImageDescribed:
         logger.info(f"Analyzing image for user {user}, user history length: {len(self.history[user])}")
+        time_s: float = time.time()
         image: ImageObjectDetected = await self.object_detector.detect(image_raw)
 
         prev_image: Optional[ImageObjectDetected] = get_last_element(self.history[user])
 
         if not is_different(image, prev_image):
             logger.info(f"Image is the same as the previous image for user {user}")
-            return ImageDescribed(image=image, description="", status="indifferent", time=-1.)
+            return ImageDescribed(
+                image=image, description="", status="indifferent", time=time.time() - time_s
+            )
 
         self.history[user].append(image)
-        return await self.image_describer.describe(image)
+        image_described: ImageDescribed = await self.image_describer.describe(image)
+        return ImageDescribed(
+            image=image,
+            description=image_described.description, status=image_described.status,
+            time=time.time() - time_s
+        )
 
     async def analyze(self, user: str, image_raw: Image.Image) -> ImageDescribed:
         image_described: ImageDescribed = await self.analyze_image(user, image_raw)

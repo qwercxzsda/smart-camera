@@ -79,7 +79,9 @@ async function analyzeAndUpdate(
         URL.revokeObjectURL(detectedImage.src);
     }
     detectedImage.src = URL.createObjectURL(analyzeResult.image);
-    detectedText.textContent = `status: ${analyzeResult.status}\n\n${analyzeResult.detections}`;
+    detectedText.textContent = (
+        `status: ${analyzeResult.status}, took ${analyzeResult.time.toFixed(4)} seconds\n\n${analyzeResult.detections}`
+    );
 
     if (analyzeResult.status !== 'success') {
         console.log(`status: ${analyzeResult.status}, skipping output list update`);
@@ -101,7 +103,7 @@ async function analyzeAndUpdate(
     const img: HTMLImageElement = document.createElement('img');
     img.src = URL.createObjectURL(analyzeResult.image);
     img.alt = 'Output Image';
-    img.classList.add('output_image');
+    img.classList.add('output-image');
 
     const p: HTMLParagraphElement = document.createElement('p');
     p.classList.add('output-text');

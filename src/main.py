@@ -9,9 +9,8 @@ from fastapi import Cookie, FastAPI, Response, UploadFile
 from fastapi.staticfiles import StaticFiles
 
 from image_analyzer.image_analyzer import ImageAnalyzer
-from image_analyzer.image_describer.image_describer import DummyImageDescriber, ImageDescribed, ImageDescriber
-from image_analyzer.image_describer.ollama_image_describer import base64encode
-from image_analyzer.object_detector.object_detector import DummyObjectDetector, ObjectDetector
+from image_analyzer.object_detector.object_detector import DummyObjectDetector, ObjectDetector, \
+    detections_to_str
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +54,7 @@ async def analyze(
     return {
         "image": base64encode(image_described.image.image_detected),
         "status": image_described.status,
-        "detections": str(image_described.image.detections),
+        "detections": detections_to_str(image_described.image.detections),
         "description": image_described.description,
         "time": image_described.time,
     }

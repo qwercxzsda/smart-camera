@@ -65,7 +65,7 @@ body {
 }
 
 #detected-image {
-    width: 50%;
+    width: 48%;
     height: 100%;
     object-fit: contain;
 }
@@ -74,6 +74,7 @@ body {
     width: 50%;
     height: 100%;
     white-space: pre-wrap;
+    text-align: justify;
 }
 
 #refresh-button {
@@ -102,7 +103,7 @@ ul {
 
 .output-item {
     width: 90%;
-    height: 15%;
+    height: 40%;
     margin: 1rem;
     display: flex;
     flex-direction: row;
@@ -110,13 +111,14 @@ ul {
 }
 
 .output-image {
-    width: 50%;
+    width: 35%;
     height: 100%;
     object-fit: contain;
 }
 
 .output-text {
-    width: 50%;
+    width: 62%;
     height: 100%;
     white-space: pre-wrap;
+    text-align: justify;
 }

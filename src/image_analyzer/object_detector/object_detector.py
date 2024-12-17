@@ -1,5 +1,6 @@
 import asyncio
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from dataclasses import dataclass
 from logging import getLogger
 from typing import final
@@ -8,7 +9,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from numpy.random import default_rng
 
-__all__ = ["Detection", "ImageObjectDetected", "ObjectDetector", "DummyObjectDetector"]
+__all__ = ["Detection", "ImageObjectDetected", "ObjectDetector", "DummyObjectDetector", "detections_to_str"]
 
 logger = getLogger(__name__)
 
@@ -26,6 +27,14 @@ class ImageObjectDetected:
     image: Image.Image
     image_detected: Image.Image
     detections: list[Detection]
+
+
+def detections_to_str(detections: list[Detection]) -> str:
+    detections_dict: defaultdict[str, int] = defaultdict(int)
+    for detection in detections:
+        detections_dict[detection.class_name] += 1
+
+    return "\n".join([f"{class_name}: {count}" for class_name, count in detections_dict.items()])
 
 
 def class_id_to_color(class_id: int) -> tuple[int, int, int]:
