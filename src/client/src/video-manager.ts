@@ -10,8 +10,16 @@ export class VideoManager {
     async getVideoFrame(): Promise<File | null> {
         const video: HTMLVideoElement = this.video;
         const canvas: HTMLCanvasElement = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+
+        // Calculate aspect ratio and adjust canvas dimensions while maintaining the ratio
+        const aspectRatio = video.videoWidth / video.videoHeight;
+        if (aspectRatio > 1) {
+            canvas.width = 640;
+            canvas.height = 640 / aspectRatio;
+        } else {
+            canvas.width = 640 * aspectRatio;
+            canvas.height = 640;
+        }
 
         const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
         if (context === null) {
